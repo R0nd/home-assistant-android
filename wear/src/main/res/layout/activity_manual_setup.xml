@@ -26,6 +26,19 @@
             app:layout_constraintTop_toBottomOf="@+id/textView"
             android:importantForAutofill="no" />
 
+        <EditText
+            android:id="@+id/access_token"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="42dp"
+            android:ems="10"
+            android:hint="Access token"
+            android:importantForAutofill="no"
+            android:inputType="textNoSuggestions"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
         <TextView
             android:id="@+id/textView"
             style="@style/HeaderText"

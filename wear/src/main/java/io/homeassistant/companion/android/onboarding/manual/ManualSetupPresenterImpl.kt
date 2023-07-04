@@ -39,54 +39,10 @@ class ManualSetupPresenterImpl @Inject constructor(
     private var codeVerifier = CodeVerifier()
     private var authClient: RemoteAuthClient? = null
 
-    override fun onNextClicked(context: Context, url: String) {
+    override fun onNextClicked(context: Context, url: String, token: String) {
         view.showLoading()
         mainScope.launch {
-            val request: OAuthRequest
-            try {
-                request = OAuthRequest.Builder(context)
-                    .setAuthProviderUrl(
-                        Uri.parse(UrlUtil.buildAuthenticationUrl(url))
-                    )
-                    .setCodeChallenge(CodeChallenge(codeVerifier))
-                    .build()
-            } catch (e: Exception) {
-                Log.e(TAG, "Unable to build OAuthRequest", e)
-                view.showError(commonR.string.failed_unsupported)
-                return@launch
-            }
-
-            authClient = RemoteAuthClient.create(context)
-            authClient?.let {
-                view.showContinueOnPhone()
-                it.sendAuthorizationRequest(
-                    request,
-                    Executors.newSingleThreadExecutor(),
-                    object : RemoteAuthClient.Callback() {
-                        override fun onAuthorizationError(request: OAuthRequest, errorCode: Int) {
-                            Log.w(TAG, "Received authorization error for OAuth: $errorCode")
-                            view.showError(
-                                when (errorCode) {
-                                    RemoteAuthClient.ERROR_UNSUPPORTED -> commonR.string.failed_unsupported
-                                    RemoteAuthClient.ERROR_PHONE_UNAVAILABLE -> commonR.string.failed_phone_connection
-                                    else -> commonR.string.failed_connection
-                                }
-                            )
-                        }
-
-                        override fun onAuthorizationResponse(
-                            request: OAuthRequest,
-                            response: OAuthResponse
-                        ) {
-                            response.responseUrl?.getQueryParameter("code")?.let { code ->
-                                register(url, code)
-                            } ?: run {
-                                view.showError(commonR.string.failed_registration)
-                            }
-                        }
-                    }
-                )
-            }
+            register(url, token);
         }
     }
 

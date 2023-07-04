@@ -7,7 +7,6 @@ import dagger.hilt.android.qualifiers.ActivityContext
 import io.homeassistant.companion.android.BuildConfig
 import io.homeassistant.companion.android.common.data.integration.DeviceRegistration
 import io.homeassistant.companion.android.common.data.servers.ServerManager
-import io.homeassistant.companion.android.onboarding.getMessagingToken
 import io.homeassistant.companion.android.tiles.ConversationTile
 import io.homeassistant.companion.android.tiles.ShortcutsTile
 import io.homeassistant.companion.android.tiles.TemplateTile
@@ -34,7 +33,7 @@ class MobileAppIntegrationPresenterImpl @Inject constructor(
         return DeviceRegistration(
             "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
             deviceName,
-            getMessagingToken(),
+            null,
             false
         )
     }

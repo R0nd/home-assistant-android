@@ -5,7 +5,6 @@ plugins {
     id("com.github.triplet.play")
     kotlin("kapt")
     id("dagger.hilt.android.plugin")
-    id("com.google.gms.google-services")
 }
 
 android {
@@ -97,7 +96,6 @@ dependencies {
 
     implementation("androidx.wear:wear:1.2.0")
     implementation("androidx.core:core-ktx:1.10.1")
-    implementation("com.google.android.gms:play-services-wearable:18.0.0")
     implementation("androidx.wear:wear-input:1.2.0-alpha02")
     implementation("androidx.wear:wear-remote-interactions:1.0.0")
     implementation("androidx.wear:wear-phone-interactions:1.0.1")
@@ -133,4 +131,5 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:32.1.0"))
     implementation("com.google.firebase:firebase-messaging")
+    implementation("com.huawei.hms:push:6.11.0.300")
 }

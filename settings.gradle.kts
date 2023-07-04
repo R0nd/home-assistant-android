@@ -4,6 +4,16 @@ include(":common", ":app", ":wear", ":automotive")
 
 rootProject.name = "home-assistant-android"
 
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+        // Configure the Maven repository address for the HMS Core SDK.
+        maven("https://developer.huawei.com/repo/")
+    }
+}
+
 plugins {
     id("com.gradle.enterprise").version("3.7")
     id("org.ajoberstar.reckon.settings").version("0.18.0")
@@ -37,5 +47,6 @@ dependencyResolutionManagement {
         mavenCentral()
         google()
         maven("https://jitpack.io")
+        maven("https://developer.huawei.com/repo/")
     }
 }

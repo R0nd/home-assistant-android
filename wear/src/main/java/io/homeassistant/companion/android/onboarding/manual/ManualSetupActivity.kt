@@ -36,7 +36,9 @@ class ManualSetupActivity : AppCompatActivity(), ManualSetupView {
         setContentView(binding.root)
 
         binding.buttonNext.setOnClickListener {
-            presenter.onNextClicked(this, findViewById<EditText>(R.id.server_url).text.toString())
+            val serverUrl = findViewById<EditText>(R.id.server_url).text.toString();
+            val accessToken = findViewById<EditText>(R.id.access_token).text.toString();
+            presenter.onNextClicked(this, serverUrl, accessToken);
         }
     }
 

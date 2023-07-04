@@ -12,7 +12,6 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.BODY_SENSORS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="com.google.android.clockwork.settings.WATCH_TOUCH" />
     <uses-permission android:name="android.permission.BLUETOOTH"
         android:maxSdkVersion="30"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
@@ -53,9 +52,6 @@
                 <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
             </intent-filter>
         </receiver>
-        <uses-library
-            android:name="com.google.android.wearable"
-            android:required="true" />
 
         <meta-data
             android:name="com.google.android.wearable.standalone"
@@ -204,13 +200,14 @@
             </intent-filter>
         </service>
 
-        <service
-            android:name=".notifications.FirebaseCloudMessagingService"
-            android:exported="false">
+        <service android:name=".notifications.FirebaseCloudMessagingService"
+            android:exported="true"
+            android:permission="${applicationId}.permission.PROCESS_PUSH_MSG"
+            android:process=":HmsMessageService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            <action android:name="com.huawei.push.action.MESSAGING_EVENT"/>
             </intent-filter>
-        </service>
+            </service>
     </application>
 
 </manifest>

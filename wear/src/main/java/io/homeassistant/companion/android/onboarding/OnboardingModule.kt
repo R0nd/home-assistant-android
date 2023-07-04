@@ -9,6 +9,4 @@ import dagger.hilt.android.components.ActivityComponent
 @InstallIn(ActivityComponent::class)
 interface OnboardingModule {
 
-    @Binds
-    fun onboardingPresenter(onboardingPresenterImpl: OnboardingPresenterImpl): OnboardingPresenter
 }
