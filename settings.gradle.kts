@@ -1,49 +1,57 @@
-import org.gradle.kotlin.dsl.support.serviceOf
 
-include(":common", ":app", ":wear", ":automotive")
+include(":common", ":app", ":wear", ":automotive", ":testing-unit", ":lint")
 
 rootProject.name = "home-assistant-android"
 
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
-        gradlePluginPortal()
-        google()
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
         mavenCentral()
-        // Configure the Maven repository address for the HMS Core SDK.
+        gradlePluginPortal()
         maven("https://developer.huawei.com/repo/")
     }
 }
 
 plugins {
-    id("com.gradle.enterprise").version("3.7")
-    id("org.ajoberstar.reckon.settings").version("0.18.0")
+    // So we can't reach the libs.plugins.* aliases from here so we need to declare them the old way...
+    id("org.ajoberstar.reckon.settings").version("0.19.2")
+    maven("https://developer.huawei.com/repo/")
 }
 
-// It should be easier to read an environment variable here once github.com/gradle/configuration-cache/issues/211 is resolved.
-val isCI = serviceOf<ProviderFactory>()
-    .environmentVariable("CI")
-    .forUseAtConfigurationTime().map { it == "true" }
-    .getOrElse(false)
+reckon {
+    val isCiBuild = providers.environmentVariable("CI").isPresent
 
-gradleEnterprise {
-    buildScan {
-        termsOfServiceUrl = "https://gradle.com/terms-of-service"
-        termsOfServiceAgree = "yes"
-        publishAlwaysIf(isCI)
-        isUploadInBackground = !isCI
-    }
-}
-
-extensions.configure<org.ajoberstar.reckon.gradle.ReckonExtension> {
     setDefaultInferredScope("patch")
-    stages("beta", "final")
+    if (!isCiBuild) {
+        // Use a snapshot version scheme with Reckon when not running in CI, which allows caching to
+        // improve performance. Background: https://github.com/home-assistant/android/issues/5220.
+        snapshots()
+    } else {
+        stages("beta", "final")
+    }
     setScopeCalc { java.util.Optional.of(org.ajoberstar.reckon.core.Scope.PATCH) }
     setStageCalc(calcStageFromProp())
     setTagWriter { it.toString() }
 }
 
 dependencyResolutionManagement {
+    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
     repositories {
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+                includeGroupByRegex("org\\.chromium.*")
+            }
+        }
         mavenCentral()
         google()
         maven("https://jitpack.io")

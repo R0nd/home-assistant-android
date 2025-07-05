@@ -2,6 +2,9 @@
 <androidx.preference.PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <io.homeassistant.companion.android.settings.SettingsSuggestionPreference
+        android:key="settings_suggestion"
+        app:isPreferenceVisible="false" />
     <PreferenceCategory
         android:key="servers_devices_category"
         android:title="@string/servers_devices_category">
@@ -41,7 +44,7 @@
             android:summary="@string/fullscreen_def"/>
         <ListPreference
             android:key="screen_orientation"
-            android:defaultValue="@string/screen_orientation_option_value_system"
+            android:defaultValue="@string/screen_orientation_option_array_value_system"
             android:entries="@array/pref_screen_orientation_option_labels"
             android:entryValues="@array/pref_screen_orientation_option_values"
             android:icon="@drawable/ic_screen_orientation"
@@ -52,6 +55,11 @@
             android:icon="@drawable/ic_phone_check"
             android:title="@string/keep_screen_on"
             android:summary="@string/keep_screen_on_def"/>
+        <ListPreference
+            android:key="page_zoom"
+            android:icon="@drawable/ic_zoom_in"
+            android:title="@string/page_zoom"
+            app:useSimpleSummaryProvider="true"/>
         <SwitchPreference
             android:key="pinch_to_zoom"
             android:icon="@drawable/ic_gesture_pinch"
@@ -80,7 +88,7 @@
             android:summary="@string/lang_summary_settings" />
         <ListPreference
             android:key="themes"
-            android:defaultValue="@string/themes_option_value_light"
+            android:defaultValue="@string/themes_option_array_value_light"
             android:entries="@array/pref_theme_option_labels"
             android:entryValues="@array/pref_theme_option_values"
             android:icon="@drawable/ic_color_lens_24dp"
@@ -119,6 +127,24 @@
             app:enableCopying="true"
             android:icon="@drawable/ic_notifications"
             android:summary="@string/rate_limit_summary"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/assist"
+        android:key="assist">
+        <SwitchPreference
+            android:key="assist_voice_command_intent"
+            android:icon="@drawable/ic_headphones_settings"
+            android:title="@string/open_with_headphone_button"
+            android:summary="@string/open_with_headphone_button_summary" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/basic_sensor_name_android_auto"
+        android:key="android_auto">
+        <Preference
+            android:key="auto_favorites"
+            android:icon="@drawable/ic_car"
+            android:title="@string/aa_favorites"
+            android:summary="@string/aa_favorites_summary" />
     </PreferenceCategory>
     <PreferenceCategory
         android:key="device_controls"
@@ -160,6 +186,22 @@
             android:summary="@string/manage_widgets_summary" />
     </PreferenceCategory>
     <PreferenceCategory
+        android:key="launcher_category"
+        android:title="@string/launcher"
+        app:isPreferenceVisible="false">
+        <SwitchPreference
+            android:key="enable_ha_launcher"
+            android:icon="@drawable/ic_android_debug_bridge"
+            app:isPreferenceVisible="true"
+            android:title="@string/launcher_option_title"
+            android:summary="@string/launcher_option_summary" />
+        <Preference
+            android:key="set_launcher_app"
+            android:title="@string/default_launcher_prompt"
+            android:summary="@string/default_launcher_prompt_def"
+            android:icon="@drawable/ic_home_variant_outline" />
+    </PreferenceCategory>
+    <PreferenceCategory
         android:title="@string/need_help">
         <Preference
             android:key="docs"
@@ -191,7 +233,7 @@
             app:enableCopying="true" />
         <Preference
             android:key="version"
-            android:icon="@drawable/app_icon_round"
+            android:icon="@drawable/ic_stat_ic_notification_blue"
             android:title="@string/application_version"
             android:summary="1.0.0 (1)"/>
         <Preference

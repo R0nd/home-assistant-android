@@ -1,9 +1,6 @@
 plugins {
-    id("com.android.library")
-    id("kotlin-android")
-    id("kotlin-kapt")
-    kotlin("kapt")
-    id("dagger.hilt.android.plugin")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.homeassistant.android.common)
 }
 
 val homeAssistantAndroidPushUrl: String by project
@@ -15,73 +12,53 @@ val versionCode = System.getenv("VERSION_CODE")?.toIntOrNull() ?: 1
 android {
     namespace = "io.homeassistant.companion.android.common"
 
-    compileSdk = 33
-
     defaultConfig {
-        minSdk = 21
         buildConfigField("String", "PUSH_URL", "\"$homeAssistantAndroidPushUrl\"")
         buildConfigField("String", "RATE_LIMIT_URL", "\"$homeAssistantAndroidRateLimitUrl\"")
         buildConfigField("String", "VERSION_NAME", "\"$versionName-$versionCode\"")
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments(
-                    mapOf(
-                        "room.incremental" to "true",
-                        "room.schemaLocation" to "$projectDir/schemas"
-                    )
-                )
-            }
-        }
-    }
-
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-
-    compileOptions {
-        sourceCompatibility(JavaVersion.VERSION_11)
-        targetCompatibility(JavaVersion.VERSION_11)
-    }
-
-    lint {
-        abortOnError = false
-        disable += "MissingTranslation"
-    }
-
-    kapt {
-        correctErrorTypes = true
     }
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.22")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.22")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlin.reflect)
+    implementation(libs.kotlinx.coroutines.core)
 
-    implementation("com.google.dagger:hilt-android:2.46.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.46.1")
+    implementation(libs.appcompat)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.media)
 
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    api(libs.androidx.room.runtime)
+    api(libs.androidx.room.ktx)
+    api(libs.androidx.room.paging)
+    ksp(libs.androidx.room.compiler)
 
-    api("androidx.room:room-runtime:2.5.2")
-    api("androidx.room:room-ktx:2.5.2")
-    kapt("androidx.room:room-compiler:2.5.2")
+    api(libs.androidx.work.runtime.ktx)
 
-    api("androidx.work:work-runtime-ktx:2.8.1")
+    // TODO should not expose retrofit outside of common https://github.com/home-assistant/android/issues/5421
+    api(platform(libs.retrofit.bom))
+    api(libs.retrofit)
+    implementation(libs.retrofit.converter.kotlinx.serialization)
+    implementation(platform(libs.okhttp.bom))
+    implementation(libs.okhttp.android)
+    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.android.beacon.library)
 
-    api("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-jackson:2.9.0")
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.5")
-    implementation("org.altbeacon:android-beacon-library:2.19.5")
+    implementation(libs.iconics.core)
+    implementation(libs.community.material.typeface)
 
-    implementation("com.mikepenz:iconics-core:5.4.0")
-    implementation("com.mikepenz:community-material-typeface:7.0.96.0-kotlin@aar")
-
-    implementation("com.vdurmont:emoji-java:5.1.1") {
+    implementation(libs.emojiJava) {
         exclude(group = "org.json", module = "json")
     }
+
+    androidTestImplementation(libs.bundles.androidx.test)
+
+    // This fix an issue: provided Metadata instance has version 2.1.0, while maximum supported version is 2.0.0. To support newer versions, update the kotlinx-metadata-jvm library
+    lintChecks(libs.androidx.runtime.lint)
+    implementation(platform(libs.compose.bom))
 }

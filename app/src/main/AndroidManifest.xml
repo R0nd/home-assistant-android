@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-sdk tools:overrideLibrary="androidx.wear.remote.interactions" />
+    <uses-sdk tools:overrideLibrary="androidx.wear.remote.interactions,androidx.car.app.projected, androidx.health.connect.client" />
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -26,7 +26,6 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.NFC" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
@@ -34,6 +33,9 @@
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28"/>
@@ -142,6 +144,17 @@
                 android:resource="@xml/entity_widget_info" />
         </receiver>
 
+        <receiver android:name=".widgets.todo.TodoWidget" android:label="@string/widget_todo_label"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/todo_widget_info" />
+        </receiver>
+
         <receiver android:name=".widgets.mediaplayer.MediaPlayerControlsWidget" android:label="@string/widget_media_player_description"
             android:exported="false">
             <intent-filter>
@@ -205,6 +218,13 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
+        <activity android:name=".widgets.todo.TodoWidgetConfigureActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
         <activity android:name=".widgets.mediaplayer.MediaPlayerControlsWidgetConfigureActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true">
@@ -230,10 +250,20 @@
         <service android:name=".controls.HaControlsProviderService"
             android:permission="android.permission.BIND_CONTROLS"
             android:exported="true">
+            <meta-data
+                android:name="android.service.controls.META_DATA_PANEL_ACTIVITY"
+                android:value="${applicationId}/io.homeassistant.companion.android.controls.HaControlsPanelActivity" />
             <intent-filter>
                 <action android:name="android.service.controls.ControlsProviderService"/>
             </intent-filter>
         </service>
+
+        <activity android:name=".controls.HaControlsPanelActivity"
+            android:permission="android.permission.BIND_CONTROLS"
+            android:exported="true"
+            android:resizeableActivity="true"
+            android:taskAffinity="io.homeassistant.companion.android.controls"
+            android:enabled="false" />
 
         <receiver
             android:name=".sensors.LocationSensorManager"
@@ -265,7 +295,8 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
 
-            <intent-filter android:autoVerify="true">
+
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -276,8 +307,21 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".launch.my.MyActivity"
+        <activity-alias
+            android:name=".launch.LauncherAlias"
+            android:targetActivity=".launch.LaunchActivity"
+            android:enabled="false"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity android:name=".launch.link.LinkActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -287,6 +331,27 @@
                     android:scheme="https"
                     android:host="my.home-assistant.io"
                     android:pathPrefix="/redirect/"/>
+            </intent-filter>
+
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="https"
+                    android:host="my.home-assistant.io"
+                    android:pathPrefix="/invite/"/>
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="homeassistant"
+                    android:host="invite" />
             </intent-filter>
         </activity>
 
@@ -338,9 +403,9 @@
         <activity
             android:name=".settings.SettingsActivity"
             android:parentActivityName=".webview.WebViewActivity"
-            android:exported="false"
+            android:exported="true"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/Theme.HomeAssistant.Config"/>
+            android:theme="@style/Theme.HomeAssistant.Config" />
 
         <activity
             android:name=".nfc.TagReaderActivity"
@@ -383,6 +448,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".barcode.BarcodeScannerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.HomeAssistant.Config" />
+
         <activity android:name=".assist.AssistActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
@@ -396,6 +466,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity-alias
+            android:name=".assist.VoiceCommandIntentActivity"
+            android:targetActivity=".assist.AssistActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VOICE_COMMAND" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
 
         <activity android:name=".widgets.assist.AssistShortcutActivity"
             android:label="@string/assist_shortcut"
@@ -417,6 +496,15 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
         </provider>
+
+        <activity
+            android:name=".qs.TilePreferenceActivity"
+            android:exported="true"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+        </activity>
 
         <service
             android:name=".qs.Tile1Service"
@@ -861,10 +949,10 @@
             android:enabled="true"
             android:exported="true" />
 
-        <receiver
-            android:name=".notifications.NotificationDeleteReceiver"
-            android:enabled="true"
-            android:exported="true" />
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync|remoteMessaging"
+            tools:node="merge" />
 
     </application>
 
