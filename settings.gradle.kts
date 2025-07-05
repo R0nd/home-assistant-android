@@ -22,7 +22,6 @@ pluginManagement {
 plugins {
     // So we can't reach the libs.plugins.* aliases from here so we need to declare them the old way...
     id("org.ajoberstar.reckon.settings").version("0.19.2")
-    maven("https://developer.huawei.com/repo/")
 }
 
 reckon {
