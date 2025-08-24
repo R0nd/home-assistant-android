@@ -26,7 +26,9 @@ import timber.log.Timber
 
 @AndroidEntryPoint
 @SuppressLint("VisibleForTests") // https://issuetracker.google.com/issues/239451111
-class OnboardingActivity : AppCompatActivity(), OnboardingView {
+class OnboardingActivity :
+    AppCompatActivity(),
+    OnboardingView {
 
     private lateinit var adapter: ServerListAdapter
 
